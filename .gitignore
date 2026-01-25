@@ -1,0 +1,11 @@
+node_modules
+.pnpm-store
+apps/web/.next
+apps/web/out
+apps/web/public/sw.js
+apps/web/public/workbox-*.js
+apps/web/public/fallback-*.js
+apps/web/tsconfig.tsbuildinfo
+packages/*/dist
+apps/api/dist
+.env
