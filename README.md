@@ -1,6 +1,87 @@
 # UBM — Universal Booking Middleware (PWA + Headless API + CMS/PWA Connectors)
 > Codex Runbook — postupné prompty (kopíruj po jednom, po každom kroku spusti testy a commitni)
 
+## VS Code + AI: odporúčaný setup (aj pre "najlepšie modely")
+Ak chceš z VS Code spraviť poriadne “AI‑boostnutý” editor, toto je najrýchlejší a stabilný setup:
+
+1. **Použi oficiálny VS Code + rozšírenie pre tvojho providera AI**
+   - Udržíš si rýchle aktualizácie, stabilitu a lepšie logovanie požiadaviek.
+   - Nevytvára to lock‑in do jedného modelu – môžeš prepínať podľa potreby.
+
+2. **Model‑agnostické workflow**
+   - Rozdeľ úlohu na menšie prompty (kontext je obmedzený).
+   - Pre kritické zmeny si nechaj vygenerovať testy a nechaj AI vysvetliť diff.
+   - Pred merge vždy spusti aspoň lint/test/typecheck.
+
+3. **Bezpečný prístup k tajomstvam**
+   - API kľúče drž v `.env` a nikdy ich necommituj.
+   - Pre tím používaj secrets manager (GitHub Actions, Vercel, Doppler, 1Password, atď.).
+
+4. **Najlepší výsledok dá kombinácia**
+   - Rýchly model na rutinné úlohy (refaktoring, dopĺňanie).
+   - Silnejší model na architektúru, návrhy a debugging.
+
+> Tip: Ak chceš, môžeme tento repozitár doplniť o konkrétny `.vscode` setup (tasks, snippets, launch config, odporúčané extensions) a workflow pre viac AI providerov.
+
+## Blueprint pre Codex agenta: Antigravity extensions (VS Code)
+Skopíruj celý blok nižšie do Codex agenta. Je to presný blueprint, ktorý má vygenerovať kompletné VS Code rozšírenie pre „Antigravity“ (podľa tvojich špecifikácií) vrátane UI, príkazov, konfigu, testov a dokumentácie.
+
+```text
+ROLE: You are a senior VS Code extension engineer.
+GOAL: Build a production-ready VS Code extension named "antigravity" with full docs, tests, and packaging.
+LANGUAGE: Slovak for user-facing text, English for code comments.
+
+CONTEXT
+- The extension should integrate with the Antigravity editor and offer AI-assisted workflows.
+- Assume no existing code. Create a complete new extension scaffold.
+- Prefer TypeScript, strict mode, ESLint, Prettier, and VS Code Extension Testing.
+
+FEATURES (MVP)
+1) Commands
+   - antigravity.connect (connect to local/remote Antigravity service)
+   - antigravity.openEditor (open Antigravity editor view)
+   - antigravity.runTask (run a task with AI assistance)
+   - antigravity.syncProjects (sync project list)
+
+2) UI
+   - Activity Bar view "Antigravity" with tree view: Projects, Recent, Favorites.
+   - Webview panel for the editor with toolbar buttons (Connect, Sync, Run Task).
+
+3) Configuration
+   - antigravity.apiBase (string)
+   - antigravity.apiKey (string, secret storage)
+   - antigravity.autoSync (boolean)
+   - antigravity.defaultModel (string)
+
+4) Telemetry & Logging
+   - OutputChannel "Antigravity"
+   - Optional telemetry toggle (off by default)
+
+5) Security
+   - Store secrets in VS Code SecretStorage
+   - Never log secrets
+
+6) Packaging
+   - Provide package.json contributions (commands, views, configuration)
+   - Provide README, CHANGELOG, and LICENSE
+
+DELIVERABLES
+- Fully working extension source in a new folder (e.g., /extensions/antigravity)
+- Install/build scripts
+- Unit tests + basic integration test
+- Clear README with setup and usage
+
+ACCEPTANCE CRITERIA
+- `npm install` and `npm run compile` pass
+- `npm test` passes
+- Extension loads in VS Code Extension Development Host
+
+OUTPUT RULES
+- Output all files with clear file headers, e.g. "File: /extensions/antigravity/src/extension.ts"
+- No pseudocode; full content for every file
+- Use concise, production-ready defaults
+```
+
 ## Cieľ
 Vybuduj 100% funkčný **booking systém** ako:
 - **Headless Backend API** (multi-tenant, adapter pattern, normalizovaná cache)
