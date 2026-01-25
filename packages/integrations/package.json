@@ -1,0 +1,20 @@
+{
+  "name": "@ubm/integrations",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "pnpm -C ../core build && tsc -p tsconfig.json --noEmit",
+    "lint": "echo 'lint:integrations'",
+    "test": "pnpm run build && node --test dist/**/*.test.js"
+  },
+  "dependencies": {
+    "@ubm/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "20.12.12",
+    "typescript": "5.4.5"
+  }
+}
