@@ -1,0 +1,74 @@
+// File: /apps/api/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  timezone  String   @default("UTC")
+  createdAt DateTime @default(now())
+
+  integrations    Integration[]
+  unifiedBookings UnifiedBooking[]
+
+  @@map("tenants")
+}
+
+model Integration {
+  id         String    @id @default(cuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  providerKey String
+  baseUrl     String?
+  settings    Json      @default("{}")
+  secretsEnc  String?
+  isEnabled   Boolean   @default(true)
+  
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  unifiedBookings UnifiedBooking[]
+
+  @@index([tenantId, isEnabled, deletedAt])
+  @@map("integrations")
+}
+
+model UnifiedBooking {
+  id                    String    @id @default(cuid())
+  tenantId              String
+  tenant                Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  integrationId         String
+  integration           Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  
+  providerId            String
+  externalReservationId String?
+  
+  status                String
+  startAt               DateTime
+  endAt                 DateTime
+  
+  customerName          String
+  customerEmail         String
+  customerPhone         String?
+  notes                 String?
+  
+  idempotencyKey        String?
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  cancelledAt           DateTime?
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, startAt])
+  @@map("unified_bookings")
+}

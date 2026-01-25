@@ -1,0 +1,22 @@
+{
+  "name": "ubm-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Universal Booking Middleware - Monorepo",
+  "scripts": {
+    "dev": "concurrently \"pnpm -C apps/api dev\" \"pnpm -C apps/web dev\"",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
