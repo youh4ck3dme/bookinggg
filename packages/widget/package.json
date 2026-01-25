@@ -1,0 +1,14 @@
+{
+  "name": "@ubm/widget",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/widget.js",
+  "scripts": {
+    "build": "tsc && echo 'Widget build placeholder - will add bundler later'",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
