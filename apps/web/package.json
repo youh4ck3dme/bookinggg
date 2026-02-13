@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "echo 'no tests'",
-    "test:e2e": "playwright test"
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",
@@ -38,6 +39,9 @@
     "postcss": "^8.4.47",
     "typescript": "^5.6.3",
     "@playwright/test": "^1.49.1",
-    "@sentry/nextjs": "^8.43.0"
+    "@sentry/nextjs": "^8.43.0",
+    "vitest": "^2.1.8",
+    "@vitest/coverage-v8": "^2.1.8",
+    "jsdom": "^25.0.1"
   }
 }
