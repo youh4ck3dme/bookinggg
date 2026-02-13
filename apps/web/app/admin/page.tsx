@@ -1,102 +1,109 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CalendarClock, LayoutDashboard, Settings } from "lucide-react";
-import { useAdminData } from "../../hooks/useAdminData";
-import { DashboardHome } from "./components/DashboardHome";
-import { LiveCalendar } from "./components/LiveCalendar";
-import { ServiceManager } from "./components/ServiceManager";
+import { useEffect, useMemo, useState } from "react";
+import { RevenueChart } from "../../components/dashboard/RevenueChart";
+import { StatsGrid } from "../../components/dashboard/StatsGrid";
+import {
+  InvoiceRow,
+  calculateOccupancyRate,
+  calculateTotalRevenue
+} from "../../components/dashboard/statsUtils";
+import { useRealtimeBookings } from "../../hooks/useRealtimeBookings";
+import { getSupabaseClient } from "../../utils/supabase/client";
 
-type AdminTab = "overview" | "calendar" | "services";
+const FALLBACK_OPENING_HOURS_PER_DAY = 10;
 
 export default function AdminPage() {
-  const [tab, setTab] = useState<AdminTab>("overview");
-  const { bookings, services, settings, stats, loading, error, updateBookingStatus, updateService } =
-    useAdminData();
+  const { bookings, feed, bookingsToday, loading, error } = useRealtimeBookings();
+  const [currency, setCurrency] = useState("EUR");
+  const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
 
-  const upcomingBookings = useMemo(() => {
-    const now = Date.now();
-    return bookings
-      .filter((booking) => new Date(booking.start_time).getTime() >= now)
-      .sort(
-        (a, b) =>
-          new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
-      );
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    const loadMeta = async () => {
+      const [{ data: settings }, { data: invoicesData }] = await Promise.all([
+        supabase
+          .from("business_settings")
+          .select("currency")
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("invoices")
+          .select("id,status,amount")
+          .order("id", { ascending: false })
+          .limit(500)
+      ]);
+
+      if (settings?.currency) setCurrency(settings.currency);
+      if (invoicesData) {
+        setInvoices(
+          (invoicesData as Array<{ id: string; status: string; amount: number }>).map((invoice) => ({
+            id: invoice.id,
+            status: invoice.status,
+            amount: Number(invoice.amount)
+          }))
+        );
+      }
+    };
+
+    void loadMeta();
+  }, []);
+
+  const totalRevenue = useMemo(() => calculateTotalRevenue(invoices), [invoices]);
+
+  const occupancyRate = useMemo(() => {
+    const totalOpeningHoursWeekly = FALLBACK_OPENING_HOURS_PER_DAY * 7;
+    return calculateOccupancyRate(bookings, totalOpeningHoursWeekly);
+  }, [bookings]);
+
+  const chartData = useMemo(() => {
+    const perDay = new Map<string, number>();
+    for (const booking of bookings) {
+      const dayLabel = new Date(booking.start_time).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric"
+      });
+      const current = perDay.get(dayLabel) ?? 0;
+      perDay.set(dayLabel, current + Number(booking.services?.price ?? 0));
+    }
+
+    return Array.from(perDay.entries())
+      .map(([label, value]) => ({ label, value }))
+      .slice(-14);
   }, [bookings]);
 
   return (
     <main className="min-h-screen bg-[#F2F2F7] p-4 dark:bg-black dark:text-white md:p-6">
-      <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-[280px_1fr]">
-        <aside className="glass-edge rounded-2xl bg-white/80 p-4 shadow-lg backdrop-blur-2xl dark:bg-black/80">
-          <h1 className="text-3xl font-bold tracking-tight">Admin</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            {settings?.shop_name ?? "Booking Command Center"}
-          </p>
+      <div className="mx-auto grid max-w-7xl gap-4">
+        <header className="glass-edge rounded-2xl bg-white/80 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-2xl dark:bg-black/60">
+          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="mt-1 text-sm text-slate-500">Realtime booking brain with analytics and live actions.</p>
+        </header>
 
-          <nav className="mt-6 space-y-2">
-            <button
-              onClick={() => setTab("overview")}
-              className={`flex h-12 min-h-[44px] w-full items-center gap-2 rounded-xl px-3 text-left active:scale-95 ${
-                tab === "overview" ? "bg-blue-500 text-white" : "bg-slate-100 dark:bg-[#1C1C1E]"
-              }`}
-            >
-              <LayoutDashboard size={18} /> Dashboard
-            </button>
-            <button
-              onClick={() => setTab("calendar")}
-              className={`flex h-12 min-h-[44px] w-full items-center gap-2 rounded-xl px-3 text-left active:scale-95 ${
-                tab === "calendar" ? "bg-blue-500 text-white" : "bg-slate-100 dark:bg-[#1C1C1E]"
-              }`}
-            >
-              <CalendarClock size={18} /> Live Calendar
-            </button>
-            <button
-              onClick={() => setTab("services")}
-              className={`flex h-12 min-h-[44px] w-full items-center gap-2 rounded-xl px-3 text-left active:scale-95 ${
-                tab === "services" ? "bg-blue-500 text-white" : "bg-slate-100 dark:bg-[#1C1C1E]"
-              }`}
-            >
-              <Settings size={18} /> Service Manager
-            </button>
-          </nav>
-        </aside>
+        {error && (
+          <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300">
+            {error}
+          </div>
+        )}
 
-        <section className="space-y-4">
-          {loading && (
-            <div className="rounded-2xl bg-white p-5 shadow dark:bg-[#111]">Loading admin data...</div>
-          )}
-
-          {error && (
-            <div className="rounded-2xl bg-red-50 p-5 text-red-700 shadow dark:bg-red-900/20 dark:text-red-300">
-              {error}
-            </div>
-          )}
-
-          {!loading && tab === "overview" && (
-            <DashboardHome
-              currency={settings?.currency ?? "EUR"}
-              revenue={stats.todaysRevenue}
-              pending={stats.pendingBookings}
-              customers={stats.activeCustomers}
+        {loading ? (
+          <div className="glass-edge rounded-2xl bg-white/80 p-6 backdrop-blur-2xl dark:bg-black/60">
+            Loading realtime feed...
+          </div>
+        ) : (
+          <>
+            <StatsGrid
+              revenue={totalRevenue}
+              bookingsToday={bookingsToday}
+              occupancyRate={occupancyRate}
+              feed={feed}
+              currency={currency}
             />
-          )}
-
-          {!loading && tab === "calendar" && (
-            <LiveCalendar
-              bookings={upcomingBookings}
-              onApprove={(id) => void updateBookingStatus(id, "confirmed")}
-              onCancel={(id) => void updateBookingStatus(id, "cancelled")}
-            />
-          )}
-
-          {!loading && tab === "services" && (
-            <ServiceManager
-              services={services}
-              currency={settings?.currency ?? "EUR"}
-              onSave={(id, payload) => void updateService(id, payload)}
-            />
-          )}
-        </section>
+            <RevenueChart data={chartData} />
+          </>
+        )}
       </div>
     </main>
   );
