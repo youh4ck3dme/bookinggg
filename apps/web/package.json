@@ -10,7 +10,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:special": "vitest run tests/pwa/special-weakness-detection.spec.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",

@@ -7,6 +7,7 @@ This suite provides runnable baseline coverage for all requested PWA domains in 
 ```bash
 pnpm -C apps/web test
 pnpm -C apps/web test:coverage
+pnpm -C apps/web test:special
 pnpm -C apps/web test:e2e
 ```
 
@@ -31,3 +32,7 @@ pnpm -C apps/web test:e2e
 18. Deployment checks
 19. Mobile budgets
 20. Scaling
+
+
+## Special hidden-weakness test
+- `tests/pwa/special-weakness-detection.spec.ts` simuluje skryté zlyhania: NaN/Infinity poisoning, XSS payloady, replay v offline queue, stabilita sortu, chýbajúce i18n kľúče a prototype pollution.
