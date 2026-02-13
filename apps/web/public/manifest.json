@@ -1,0 +1,31 @@
+{
+  "name": "Booking Dashboard",
+  "short_name": "Booking",
+  "description": "Mobile-first booking PWA ready for app store packaging.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512.svg",
+      "sizes": "540x720",
+      "type": "image/svg+xml"
+    }
+  ]
+}

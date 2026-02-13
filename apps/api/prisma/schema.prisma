@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id           String           @id @default(cuid())
+  name         String
+  slug         String           @unique
+  timezone     String
+  createdAt    DateTime         @default(now())
+  integrations Integration[]
+  bookings     UnifiedBooking[]
+}
+
+model Integration {
+  id          String   @id @default(cuid())
+  tenantId    String
+  providerKey String
+  baseUrl     String
+  settings    Json
+  secretsEnc  String
+  isEnabled   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, isEnabled, deletedAt])
+}
+
+model UnifiedBooking {
+  id                    String      @id @default(cuid())
+  tenantId              String
+  integrationId         String
+  providerId            String
+  externalReservationId String
+  status                String
+  startAt               DateTime
+  endAt                 DateTime
+  customerName          String
+  customerEmail         String?
+  customerPhone         String?
+  notes                 String?
+  idempotencyKey        String?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  cancelledAt           DateTime?
+  tenant                Tenant      @relation(fields: [tenantId], references: [id])
+  integration           Integration @relation(fields: [integrationId], references: [id])
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, startAt])
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String?
+  salt         String?
+  twoFaSecret  String?
+  biometricId  String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sessions     Session[]
+  refreshTokens RefreshToken[]
+  oauthAccounts OauthAccount[]
+}
+
+model Session {
+  token     String   @id
+  userId    String
+  expiresAt DateTime
+  ipAddress String
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model RefreshToken {
+  token      String   @id
+  userId     String
+  expiresAt  DateTime
+  isRevoked  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model OauthAccount {
+  id                String   @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  createdAt         DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model TokenBlacklist {
+  token     String   @id
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  action    String
+  meta      Json
+  createdAt DateTime @default(now())
+}
