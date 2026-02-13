@@ -27,7 +27,7 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-[#F2F2F7] p-4 dark:bg-black dark:text-white md:p-6">
       <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-[280px_1fr]">
-        <aside className="rounded-2xl bg-white/80 p-4 shadow-lg backdrop-blur-2xl dark:bg-black/80">
+        <aside className="glass-edge rounded-2xl bg-white/80 p-4 shadow-lg backdrop-blur-2xl dark:bg-black/80">
           <h1 className="text-3xl font-bold tracking-tight">Admin</h1>
           <p className="mt-1 text-sm text-slate-500">
             {settings?.shop_name ?? "Booking Command Center"}

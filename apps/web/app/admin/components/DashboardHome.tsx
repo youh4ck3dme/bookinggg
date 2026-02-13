@@ -31,7 +31,7 @@ export function DashboardHome({
       {cards.map((card) => (
         <article
           key={card.label}
-          className="rounded-2xl bg-white/80 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-2xl dark:bg-black/60"
+          className="glass-edge rounded-2xl bg-white/80 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-2xl dark:bg-black/60"
         >
           <p className="text-sm text-slate-500 dark:text-slate-300">{card.label}</p>
           <p className="mt-2 text-3xl font-bold tracking-tight">{card.value}</p>

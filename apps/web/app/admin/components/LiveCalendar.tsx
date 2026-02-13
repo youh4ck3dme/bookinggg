@@ -19,7 +19,7 @@ export function LiveCalendar({
   onCancel: (bookingId: string) => void;
 }) {
   return (
-    <section className="rounded-2xl bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:bg-[#111]">
+    <section className="glass-edge rounded-2xl bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:bg-[#111]">
       <h2 className="text-2xl font-semibold">Live Calendar</h2>
       <p className="mt-1 text-sm text-slate-500">Upcoming bookings sorted by time.</p>
 
@@ -30,7 +30,7 @@ export function LiveCalendar({
           bookings.map((booking) => (
             <article
               key={booking.id}
-              className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 md:flex-row md:items-center md:justify-between dark:bg-[#1C1C1E]"
+              className="flex flex-col gap-3 glass-edge rounded-2xl bg-slate-50 p-4 md:flex-row md:items-center md:justify-between dark:bg-[#1C1C1E]"
             >
               <div>
                 <p className="font-medium">{booking.services?.title ?? "Service"}</p>

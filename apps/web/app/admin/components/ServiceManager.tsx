@@ -22,7 +22,7 @@ export function ServiceManager({
   );
 
   return (
-    <section className="rounded-2xl bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:bg-[#111]">
+    <section className="glass-edge rounded-2xl bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:bg-[#111]">
       <h2 className="text-2xl font-semibold">Service Manager</h2>
       <p className="mt-1 text-sm text-slate-500">Update pricing and availability.</p>
 
@@ -30,7 +30,7 @@ export function ServiceManager({
         {services.map((service) => (
           <article
             key={service.id}
-            className="flex items-center justify-between rounded-2xl bg-slate-50 p-4 dark:bg-[#1C1C1E]"
+            className="flex items-center justify-between glass-edge rounded-2xl bg-slate-50 p-4 dark:bg-[#1C1C1E]"
           >
             <div>
               <p className="font-medium">{service.title}</p>
@@ -54,7 +54,7 @@ export function ServiceManager({
 
       {selectedService && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 md:items-center">
-          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl dark:bg-[#1C1C1E]">
+          <div className="glass-edge w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl dark:bg-[#1C1C1E]">
             <h3 className="text-xl font-semibold">Edit {selectedService.title}</h3>
             <label className="mt-4 block text-sm font-medium">Price</label>
             <input
