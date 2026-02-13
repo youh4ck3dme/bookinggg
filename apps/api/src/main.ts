@@ -6,6 +6,16 @@ import { ApiKeyGuard } from "./api-key.guard";
 import { GlobalErrorFilter } from "./global-error.filter";
 import helmet from "helmet";
 import { NextFunction, Request, Response } from "express";
+import * as Sentry from "@sentry/node";
+import { logStructured } from "./structured-logger";
+
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0.1),
+    environment: process.env.APP_ENV ?? process.env.NODE_ENV
+  });
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -49,6 +59,8 @@ async function bootstrap() {
   );
 
   app.use((req: Request, res: Response, next: NextFunction) => {
+    const start = Date.now();
+
     if (req.method === "GET" && req.path === "/auth/csrf") {
       const token = Math.random().toString(36).slice(2);
       res.setHeader("x-csrf-token", token);
@@ -62,13 +74,31 @@ async function bootstrap() {
       }
     }
 
+    res.on("finish", () => {
+      logStructured("info", "http_request", {
+        method: req.method,
+        path: req.path,
+        statusCode: res.statusCode,
+        durationMs: Date.now() - start,
+        requestId: req.headers["x-request-id"] ?? null
+      });
+    });
+
     next();
   });
 
   app.useGlobalGuards(new ApiKeyGuard());
   app.useGlobalFilters(new GlobalErrorFilter());
 
-  await app.listen(process.env.PORT ? Number(process.env.PORT) : 4000);
+  const port = process.env.PORT ? Number(process.env.PORT) : 4000;
+  await app.listen(port);
+  logStructured("info", "api_started", { port });
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  logStructured("error", "bootstrap_failed", { error: error instanceof Error ? error.message : String(error) });
+  if (process.env.SENTRY_DSN) {
+    Sentry.captureException(error);
+  }
+  process.exit(1);
+});
